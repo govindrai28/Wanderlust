@@ -75,8 +75,24 @@ app.get("/listings/:id/edit", async (req, res) =>{
 
 //Update Route
 app.put("/listings/:id", async (req, res) =>{
-    let {id} = req.params;
-    await Listing.findByIdAndUpdate(id, {...req.body.listing})//JS object hai jiske ander sare kai saare parameters hai isko deconstruct kar kai un values ko individual values kai ander convert karenge apni new updated value kai ander pass kar denge 
+    // let {id} = req.params;
+    // await Listing.findByIdAndUpdate(id, {...req.body.listing})//JS object hai jiske ander sare kai saare parameters hai isko deconstruct kar kai un values ko individual values kai ander convert karenge apni new updated value kai ander pass kar denge 
+    // res.redirect(`/listings/${id}`);
+    const { id } = req.params;
+    const { title, price, description, image } = req.body.listing;
+  
+    const listing = await Listing.findById(id);
+  
+    listing.title = title;
+    listing.price = price;
+    listing.description = description;
+  
+    // Optional: Only update image if provided
+    if (image && image.url && image.url.trim() !== "") {
+      listing.image.url = image.url;
+    }
+  
+    await listing.save();
     res.redirect(`/listings/${id}`);
 });
 
