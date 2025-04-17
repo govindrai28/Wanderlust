@@ -50,6 +50,15 @@ app.get("/listings/:id", async (req, res) => {
    
 //Create Route
 app.post("/listings", async (req, res) => {
+    let listingData = req.body.listing;
+
+    // ✅ If user didn’t provide image, set a default image
+    if (!listingData.image || !listingData.image.url || listingData.image.url.trim() === "") {
+        listingData.image = {
+            url: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHN1bnNldHxlbnwwfHwwfHx8MA%3D%3D",
+            filename: "defaultImage"
+        };
+    }
     // let {title, description, image, price, country, location} = req.body;////this is the one way to extract data form the things from the body
     const newListing = new Listing(req.body.listing); // req.body.listing => object from form
     await newListing.save();// Save to MongoDB
