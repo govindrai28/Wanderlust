@@ -5,6 +5,7 @@ const Listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const wrapAsync = require("./utils/wrapAsync.js");
 
 const MONGO_URL="mongodb://127.0.0.1:27017/wanderlust";
 
@@ -49,7 +50,7 @@ app.get("/listings/:id", async (req, res) => {
 })
    
 //Create Route
-app.post("/listings", async (req, res) => {
+app.post("/listings", wrapAsync(async (req, res, next) => {
     let listingData = req.body.listing;
 
     // ✅ If user didn’t provide image, set a default image
@@ -73,7 +74,8 @@ app.post("/listings", async (req, res) => {
     // //       country: 'India',
     // //       location: 'Delhi'
     // //     } //is JS object ko hum apne MongoDb object ya instance mai covert kar sakte hai
-})
+
+}));
 
 //Edit Route
 app.get("/listings/:id/edit", async (req, res) =>{
@@ -125,6 +127,12 @@ app.delete("/listings/:id", async (req, res) => {
 //     console.log("sample was saved");
 //     res.send("successful testing");
 // });
+
+
+//Custom  Error Handling
+app.use((err, req, res, next) => {
+    res.send("something went wrong!");
+});
 
 app.listen(8080, () =>{
     console.log("server is listening to port 8080");
