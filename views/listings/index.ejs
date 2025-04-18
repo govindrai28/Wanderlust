@@ -13,7 +13,11 @@
                             <b>
                                 <%= listing.title%>
                             </b><br>
-                            &#8377 <%=listing.price.toLocaleString("en-IN")%> / night
+                            <% if(listing.price) { %>
+                            &#8377 <%=Number(listing.price).toLocaleString("en-IN")%> / night
+                            <% } else {  %> 
+                                <span style="color:gray">Price not available</span>
+                                <% } %>
                         </p>
                     </div>
                 </div>

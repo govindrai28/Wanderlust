@@ -7,6 +7,8 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
+const { listingSchema } = require("./schema.js");
+
 
 const MONGO_URL="mongodb://127.0.0.1:27017/wanderlust";
 
@@ -53,18 +55,12 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
 
 //Create Route
 app.post("/listings", wrapAsync(async (req, res, next) => {
-    if (!req.body.listing) {
-        throw new ExpressError(400, "Send valid data for listing");
-    }
-
     let listingData = req.body.listing;
-
-    // Validate required fields (optional but useful)
-    const { title, description, price, country, location } = listingData;
-    if (!title || !description || !price || !country || !location) {
-        throw new ExpressError(400, "All fields except image are required.");
+    let result = listingSchema.validate(req.body);
+    // console.log(result);
+    if(result.error) {
+        throw new ExpressError(400, result.error);
     }
-
     // Set default image if none provided
     if (!listingData.image || !listingData.image.url || listingData.image.url.trim() === "") {
         listingData.image = {
@@ -73,7 +69,7 @@ app.post("/listings", wrapAsync(async (req, res, next) => {
         };
     }
 
-    const newListing = new Listing(listingData);
+    const newListing = new Listing(req.body.listing);
     await newListing.save();
 
     // Optional: flash message
