@@ -34,6 +34,16 @@ app.get("/",(req, res)=>{
     res.send("Hi, I am root");
 });
 
+const validateListing = (req, res, next) => {
+    // console.log("Requeset Body: ", req.body);
+    let { error } = listingSchema.validate(req.body);
+    if(error) {
+        let errMsg = error.details.map((el) => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    } else {
+        next();
+    }
+}
 //Index Route
 app.get("/listings", wrapAsync(async (req, res)=>{
     const allListings = await Listing.find({});
@@ -54,13 +64,8 @@ app.get("/listings/:id", wrapAsync(async (req, res) => {
 
 
 //Create Route
-app.post("/listings", wrapAsync(async (req, res, next) => {
+app.post("/listings", validateListing,  wrapAsync(async (req, res, next) => {
     let listingData = req.body.listing;
-    let result = listingSchema.validate(req.body);
-    // console.log(result);
-    if(result.error) {
-        throw new ExpressError(400, result.error);
-    }
     // Set default image if none provided
     if (!listingData.image || !listingData.image.url || listingData.image.url.trim() === "") {
         listingData.image = {
@@ -86,13 +91,10 @@ app.get("/listings/:id/edit", wrapAsync(async (req, res) =>{
 }));
 
 //Update Route
-app.put("/listings/:id", wrapAsync(async (req, res) =>{
+app.put("/listings/:id", validateListing, wrapAsync(async (req, res) =>{
     // let {id} = req.params;
     // await Listing.findByIdAndUpdate(id, {...req.body.listing})//JS object hai jiske ander sare kai saare parameters hai isko deconstruct kar kai un values ko individual values kai ander convert karenge apni new updated value kai ander pass kar denge 
     // res.redirect(`/listings/${id}`);
-    if (!req.body.listing) {
-        throw new ExpressError(400, "Send valid data for listing");
-    }
     const { id } = req.params;
     const { title, price, description, image } = req.body.listing;
   
