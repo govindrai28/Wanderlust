@@ -5,17 +5,7 @@ const ExpressError = require("../utils/ExpressError.js");
 const { reviewSchema } = require("../schema.js");
 const Review = require("../models/review.js");
 const Listing = require("../models/listing.js");
-
-const validateReview = (req, res, next) => {
-    // console.log("Requeset Body: ", req.body);
-    let { error } = reviewSchema.validate(req.body);
-    if(error) {
-        let errMsg = error.details.map((el) => el.message).join(",");
-        throw new ExpressError(400, errMsg);
-    } else {
-        next();
-    }
-}
+const {validateReview} = require("../middleware.js");
 
 //Post Review Route
 router.post("/", validateReview, wrapAsync(async(req, res) => {
