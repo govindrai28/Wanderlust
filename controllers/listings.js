@@ -22,6 +22,8 @@ module.exports.showListing = async (req, res) => {
 };
 
 module.exports.createListing = async (req, res, next) => {
+    let url = req.file.path;
+    let filename = req.file.filename;
     let listingData = req.body.listing;
     // Set default image if none provided
     if (!listingData.image || !listingData.image.url || listingData.image.url.trim() === "") {
@@ -32,6 +34,7 @@ module.exports.createListing = async (req, res, next) => {
     }
 
     const newListing = new Listing(req.body.listing);
+    newListing.image = {url, filename};
     newListing.owner = req.user._id;
     await newListing.save();
 
